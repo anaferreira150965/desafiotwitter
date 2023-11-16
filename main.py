@@ -1,21 +1,26 @@
-from secrets import CONSUMER_KEY, CONSUMER_SECRET
-from typing import Union
-from secrets import API_KEY
+from typing import List
 
-
+import uvicorn
 from fastapi import FastAPI
+
+from src.responses import TrendItem
+from src.services import get_trends, save_trends
 
 app = FastAPI()
 
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+@app.get("/trends", response_model=List[TrendItem])
+def get_trends_route():
+    return get_trends()
 
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
+if __name__ == "__main__":
+    trends = get_trends()
+
+    if not trends:
+        save_trends()
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 
 
 
